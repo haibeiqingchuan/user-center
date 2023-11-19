@@ -11,4 +11,7 @@ spring:
 server:
   port: 8080
 
-
+mybatis-plus:
+  configuration:
+    #关闭数据库自动驼峰转换
+    map-underscore-to-camel-case: false
