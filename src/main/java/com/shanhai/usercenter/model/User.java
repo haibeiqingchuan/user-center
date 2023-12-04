@@ -1,17 +1,15 @@
 package com.shanhai.usercenter.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * @description: shnahai
- * @author: shanhai
- * @date: 2023/11/21 0:12
- * @Version: 1.0
- **/
+ * 
+ * @TableName user
+ */
 @TableName(value ="user")
 @Data
 public class User implements Serializable {
@@ -62,9 +60,10 @@ public class User implements Serializable {
     private Integer userStatus;
 
     /**
-     * 创建时间
+     * 是否删除  1-逻辑删除
      */
-    private Date createTime;
+    @TableLogic
+    private Integer isDelete;
 
     /**
      * 更新时间
@@ -72,10 +71,14 @@ public class User implements Serializable {
     private Date updateTime;
 
     /**
-     * 是否删除  1-逻辑删除
+     * 创建时间
      */
-    @TableLogic
-    private Integer isDelete;
+    private Date createTime;
+
+    /**
+     * 用户角色 0-普通用户  1-管理员
+     */
+    private Integer userRole;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

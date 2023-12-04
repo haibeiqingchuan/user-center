@@ -4,6 +4,8 @@ import com.shanhai.usercenter.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shanhai
@@ -13,25 +15,41 @@ import javax.servlet.http.HttpServletRequest;
 public interface UserService extends IService<User> {
 
     /**
-     * 用户注册
-     *
-     * @author: shanhai
-     * @date: 2023/11/20 23:10
-     * @param: userAccount 用户账号
-     * @param: userPassword 用户密码
-     * @param: checkPassword 校验密码
-     * @return: long
+     * @Description 用户注册
+     * @author hetianyou
+     * @date 2023/12/4 22:57
+     * @param userAccount 用户名称
+     * @param userPassword 用户密码
+     * @param checkPassword 校验密码
+     * @return long
      **/
     long userRegister(String userAccount, String userPassword, String checkPassword);
 
     /**
-     * 用户登录
-     * @author: hetianyou
-     * @date: 2023/11/21 22:41
-     * @param: userAccount 账户名
-     * @param: userPassword 密码
-     * @return: com.shanhai.usercenter.model.User
+     * @Description 用户登录
+     * @author hetianyou
+     * @date 2023/12/4 22:56
+     * @param userAccount
+     * @param userPassword
+     * @param request
+     * @return com.shanhai.usercenter.model.User
      **/
     User doLogin(String userAccount, String userPassword, HttpServletRequest request);
 
+    /**
+     * @Description  用户脱敏
+     * @author hetianyou
+     * @date 2023/12/4 23:02
+     * @param user
+     * @return com.shanhai.usercenter.model.User
+     **/
+    User getSafetyUser(User user);
+    /**
+     * @Description 查询用户
+     * @author hetianyou
+     * @date 2023/12/4 23:04
+     * @param userName
+     * @return java.util.List<com.shanhai.usercenter.model.User>
+     **/
+    List<User> searchUser(String userName);
 }

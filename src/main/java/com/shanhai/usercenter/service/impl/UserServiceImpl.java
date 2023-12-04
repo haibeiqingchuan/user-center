@@ -2,6 +2,7 @@ package com.shanhai.usercenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.shanhai.usercenter.constant.UserConstant;
 import com.shanhai.usercenter.mapper.UserMapper;
 import com.shanhai.usercenter.model.User;
 import com.shanhai.usercenter.service.UserService;
@@ -13,8 +14,10 @@ import org.springframework.util.DigestUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
 * @author shanhai
@@ -26,14 +29,6 @@ import java.util.regex.Pattern;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService{
 
-    /**
-     * 用户登录态
-     */
-    private static final String USER_LOGIN_STATE = "USERLoginState";
-    /**
-     * 盐值
-     */
-    private static final String SALT = "shanhai";
     @Resource
     private UserMapper userMapper;
 
@@ -69,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return -1;
         }
         //2.加密
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes(StandardCharsets.UTF_8));
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes(StandardCharsets.UTF_8));
 
         User user = new User();
         user.setUserAccount(userAccount);
@@ -100,7 +95,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         }
         //加密
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes(StandardCharsets.UTF_8));
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes(StandardCharsets.UTF_8));
         //查询用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount",userAccount);
@@ -111,6 +106,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         }
         //用户脱敏
+        User safetyUser = getSafetyUser(user);
+        //记录用户登录态
+        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE,safetyUser);
+        return safetyUser;
+    }
+
+    /**
+     * @Description: 用户脱敏
+     * @author: hetianyou
+     * @date: 2023/12/4 22:54
+     * @param: user
+     * @return: com.shanhai.usercenter.model.User
+     **/
+    @Override
+    public User getSafetyUser(User user) {
         User safetyUser = new User();
         safetyUser.setId(user.getId());
         safetyUser.setUserAccount(user.getUserAccount());
@@ -119,11 +129,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setPhone(user.getPhone());
         safetyUser.setAvatarUrl(user.getAvatarUrl());
         safetyUser.setEmail(user.getEmail());
+        safetyUser.setUserRole(user.getUserRole());
         safetyUser.setUserStatus(user.getUserStatus());
         safetyUser.setCreateTime(user.getCreateTime());
-        //记录用户登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE,safetyUser);
         return safetyUser;
+    }
+
+    /**
+     * @Description 用户查询
+     * @author hetianyou
+     * @date 2023/12/4 23:04
+     * @param userName
+     * @return java.util.List<com.shanhai.usercenter.model.User>
+     **/
+    @Override
+    public List<User> searchUser(String userName) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotBlank(userName),"userName",userName);
+        List<User> userList = userMapper.selectList(queryWrapper);
+        return userList.stream().map(user -> getSafetyUser(user)).collect(Collectors.toList());
     }
 }
 
